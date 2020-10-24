@@ -1,0 +1,6 @@
+microprediction
+fastapi
+databases
+uvicorn
+aiosqlite
+
