@@ -1,4 +1,9 @@
 # orakel
 
-Some experiments in micropredictio, muid mining, etc.
+Some experiments in microprediction, muid mining, etc.
+
+
+See
+[www.microprediction.com](www.microprediction.com)
+
 
