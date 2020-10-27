@@ -41,7 +41,7 @@ class FTCrawlerV0(MicroCrawler):
                               + [ i ] ).transpose()
 
         self.lr = LinearRegression()
-        self.names = []
+        self.names1 = []
         self.horizon_i = 0
 
     def include_stream(self, name=None, **ignore):
@@ -49,9 +49,9 @@ class FTCrawlerV0(MicroCrawler):
         include = name.startswith('electricity-load-')
         if include:
             print(f"INCLUDED: {name}")
-            if name not in self.names:
-                self.names.append(name)
-                print(f'names has {len(self.names)}')
+            if name not in self.names1:
+                self.names1.append(name)
+                print(f'names has {len(self.names1)}')
 
         if not include and 'electricity-load-' in name:
             print( "not included:", name )
@@ -60,7 +60,7 @@ class FTCrawlerV0(MicroCrawler):
 
     def next_horizon(self, exclude):
         self.horizon_i += 1
-        next_name = self.names[self.horizon_i % len(self.names)]
+        next_name = self.names1[self.horizon_i % len(self.names1)]
         return f"310::{next_name}"
 
     # def exclude_delay(self, delay, name=None, **ignore):
