@@ -29,6 +29,9 @@ log.basicConfig(stream=sys.stderr, level=log.INFO)
 class FTCrawlerV0(MicroCrawler):
 
     def __init__(self, **kwargs):
+        self.names1 = []
+        self.horizon_i = 0
+
         super().__init__(**kwargs)
 
         self.nf = 20  # num
@@ -41,8 +44,7 @@ class FTCrawlerV0(MicroCrawler):
                               + [ i ] ).transpose()
 
         self.lr = LinearRegression()
-        self.names1 = []
-        self.horizon_i = 0
+        print( self.names1 )
 
     def include_stream(self, name=None, **ignore):
         """whether to include a stream in predictions"""
