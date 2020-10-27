@@ -74,9 +74,6 @@ class FTCrawlerV0(MicroCrawler):
         """
         lagged_values, lagged_times = self.get_lagged_values_and_times( name )
 
-        # print("lagged_times: ", lagged_times[:5])
-        # print( "lagged_values: ", lagged_values[:5] )
-
         n_values = len(lagged_values)
         print( f"name={name} n_values: {n_values}\ntype(lagged_values)={type(lagged_values)}\n "
                f"delay={delay} "
@@ -85,7 +82,7 @@ class FTCrawlerV0(MicroCrawler):
                f"lagged_values[-1]={lagged_values[-1]:.2f}" )
 
         N = self.min_lags
-        past_truth = lagged_values[:N]
+        past_truth = lagged_values[:N][-1::-1]
 
         self.lr.fit(self.feats[:N, :], past_truth)
 
