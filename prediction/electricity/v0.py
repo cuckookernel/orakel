@@ -125,15 +125,16 @@ def _interactive_testing():
     # noinspection PyUnresolvedReferences
     runfile("prediction/electricity/v0.py")
     # %%
-    log.info('Publishing starts')
-
-    if __name__ == '__main__':
-        crawler = FTCrawlerV0(write_key=_Config.write_key,
-                              min_lags=_Config.min_lags)
-        crawler.run()
     # %%
     from microprediction.reader import MicroReader
     reader = MicroReader()
     # %%
     lagged = reader.get_lagged('electricity-load-nyiso-overall.json')
     # %%
+
+log.info('Publishing starts')
+
+if __name__ == '__main__':
+    crawler = FTCrawlerV0(write_key=_Config.write_key,
+                          min_lags=_Config.min_lags)
+    crawler.run()
