@@ -50,13 +50,13 @@ class FTCrawlerV0(MicroCrawler):
         """whether to include a stream in predictions"""
         include = name.startswith('electricity-load-')
         if include:
-            print(f"INCLUDED: {name}")
+            # print(f"INCLUDED: {name}")
             if name not in self.names1:
                 self.names1.append(name)
                 print(f'names has {len(self.names1)}')
 
-        if not include and 'electricity-load-' in name:
-            print( "not included:", name )
+        # if not include and 'electricity-load-' in name:
+        #    print( "not included:", name )
 
         return include
 
