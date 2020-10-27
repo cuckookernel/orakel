@@ -41,7 +41,7 @@ class FTCrawlerV0(MicroCrawler):
                               + [ i ] ).transpose()
 
         self.lr = LinearRegression()
-        self.name = None
+        self.names = []
         self.horizon_i = 0
 
     def include_stream(self, name=None, **ignore):
@@ -49,20 +49,19 @@ class FTCrawlerV0(MicroCrawler):
         include = name.startswith('electricity-load-')
         if include:
             print(f"INCLUDED: {name}")
-            self.name = name
+            if name not in self.names:
+                self.names.append(name)
+                print(f'names has {len(self.names)}')
 
-        if not include and 'electricity-load-nyiso-voeral' in name:
+        if not include and 'electricity-load-' in name:
             print( "not included:", name )
 
         return include
 
-    # def include_delay(self, name: str, delay: int):
-    #    log.info(f"include_delay: delay: {delay}")
-    #    self.name = name
-    #    return delay in [310]
-
     def next_horizon(self, exclude):
-        return f"310::{self.name}"
+        self.horizon_i += 1
+        next_name = self.names[self.horizon_i % len(self.names)]
+        return f"310::{next_name}"
 
     # def exclude_delay(self, delay, name=None, **ignore):
     #     return delay > 50000  # Lower this to have any effect
@@ -79,7 +78,7 @@ class FTCrawlerV0(MicroCrawler):
                f"delay={delay} "
                f"lagged_times[0]={lagged_times[0]:.2f} lagged_times[-1]={lagged_times[-1]:.2f}\n"
                f"time_span = {lagged_times[-1] - lagged_times[0]:.2f} "
-               f"lagged_values[-1]={lagged_values[-1]:.2f}" )
+               f"lagged_values[0]={lagged_values[0]:.2f}" )
 
         N = self.min_lags
         past_truth = lagged_values[:N][-1::-1]
