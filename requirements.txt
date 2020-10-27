@@ -5,4 +5,6 @@ uvicorn
 aiosqlite
 pandas
 python-env
+statsmodels
+scikit-learn
 
