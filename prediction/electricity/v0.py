@@ -29,7 +29,7 @@ log.basicConfig(stream=sys.stderr, level=log.INFO)
 class FTCrawlerV0(MicroCrawler):
 
     def __init__(self, **kwargs):
-        self.names1 = []
+        self.names = []
         self.horizon_i = 0
         self.horizons = ["310", "910", "3555"]
 
@@ -52,19 +52,20 @@ class FTCrawlerV0(MicroCrawler):
         include = name.startswith('electricity-load-')
         if include:
             # print(f"INCLUDED: {name}")
-            if name not in self.names1:
-                self.names1.append(name)
-                print(f'names has {len(self.names1)}')
+            if name not in self.names:
+                self.names.append(name)
+                print(f'names has {len(self.names)}')
 
         # if not include and 'electricity-load-' in name:
         #    print( "not included:", name )
 
         return include
 
-    def next_horizon(self, exclude):
+    def next_horizon(self, exclude=None):
+        """produce a next horizon by cycling jointly through self.horizons self.names """
         self.horizon_i += 1
         name_i = self.horizon_i // 3
-        next_name = self.names1[name_i % len(self.names1)]
+        next_name = self.names[name_i % len(self.names)]
         horizon = self.horizons[self.horizon_i % len(self.horizons)]
         return f"{horizon}::{next_name}"
 
@@ -111,7 +112,7 @@ class FTCrawlerV0(MicroCrawler):
         print(f"past error: l1: {_l1_error(past_preds, past_truth)} "
               f"l2: {_l2_error(past_preds, past_truth)}")
 
-        pred0 = self.lr.predict(self.feats[[N], :])
+        pred0 = self.lr.predict(self.feats[[self.min_lags], :])
         err = past_truth - past_preds
         arima = ARIMA(err, order=(2, 0, 1))
         model_fit = arima.fit()
