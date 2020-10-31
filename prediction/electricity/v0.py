@@ -31,6 +31,7 @@ class FTCrawlerV0(MicroCrawler):
     def __init__(self, **kwargs):
         self.names1 = []
         self.horizon_i = 0
+        self.horizons = ["310", "910", "3555"]
 
         super().__init__(**kwargs)
 
@@ -62,8 +63,10 @@ class FTCrawlerV0(MicroCrawler):
 
     def next_horizon(self, exclude):
         self.horizon_i += 1
-        next_name = self.names1[self.horizon_i % len(self.names1)]
-        return f"310::{next_name}"
+        name_i = self.horizon_i // 3
+        next_name = self.names1[name_i % len(self.names1)]
+        horizon = self.horizons[self.horizon_i % len(self.horizons)]
+        return f"{horizon}::{next_name}"
 
     # def exclude_delay(self, delay, name=None, **ignore):
     #     return delay > 50000  # Lower this to have any effect
@@ -84,31 +87,45 @@ class FTCrawlerV0(MicroCrawler):
 
         N = self.min_lags
         past_truth = lagged_values[:N][-1::-1]
+        past_preds = self.lr.predict(self.feats[:N])
+        stdev = _l2_error(past_preds, past_truth)
 
         self.lr.fit(self.feats[:N, :], past_truth)
 
-        past_preds = self.lr.predict( self.feats[:N] )
-        print( f"past error: l1: {_l1_error(past_preds, past_truth)} "
-               f"l2: {_l2_error(past_preds, past_truth)}")
+        if delay == 310:
+            pred, stdev = self._predict_310( name, delay, past_truth, past_preds,
+                                             last_time=lagged_times[-1] )
+        elif delay == 910:
+            pred = self.lr.predict(self.feats[[N + 2], :])
+        elif delay == 3555:
+            pred = self.lr.predict(self.feats[[N + 11], :])
+        else:
+            raise ValueError( 'Invalid value for delay={delay}')
 
-        pred = self.lr.predict( self.feats[[N], :] )
+        result = random.normal( pred, stdev, size=225 )
 
+        return sorted(result)
+
+    def _predict_310(self, name, delay, past_truth, past_preds, last_time):
+
+        print(f"past error: l1: {_l1_error(past_preds, past_truth)} "
+              f"l2: {_l2_error(past_preds, past_truth)}")
+
+        pred0 = self.lr.predict(self.feats[[N], :])
         err = past_truth - past_preds
-        arima = ARIMA( err, order=(2, 0, 1))
+        arima = ARIMA(err, order=(2, 0, 1))
         model_fit = arima.fit()
         past_err_preds = model_fit.predict()
         err_preds = model_fit.predict(start=len(err), end=len(err) + 3)
+        stdev = _l2_error(past_preds + past_err_preds, past_truth)
+        pred = pred0 + err_preds[0]
 
-        stdev = _l2_error( past_preds + past_err_preds, past_truth )
+        print(f'{name} prediction for: t={ last_time + delay}: {pred},\n'
+              f'err_preds has {len(err_preds)}: past_err_preds[-1]={past_err_preds[-1]:.2f} '
+              # f'err_preds={err_preds}\n'
+              f'stdev={stdev:.2f}')
 
-        print( f'{name} prediction for: t={lagged_times[-1] + delay}: {pred},\n'
-               f'err_preds has {len(err_preds)}: past_err_preds[-1]={past_err_preds[-1]:.2f} '
-               # f'err_preds={err_preds}\n'
-               f'stdev={stdev:.2f}' )
-
-        result = random.normal( pred + err_preds[0], stdev, size=225 )
-
-        return sorted(result)
+        return pred, stdev
 
 
 def _l1_error( preds: np.array, truth: np.array ) -> float:

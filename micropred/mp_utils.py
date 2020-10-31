@@ -8,7 +8,6 @@ import requests
 import pandas as pd
 from pandas import Series, DataFrame
 
-from microprediction.polling import MicroPoll
 # %%
 
 DF = DataFrame
@@ -73,7 +72,7 @@ def main():
 def _interactive_testing():
     # %%
     # noinspection PyUnresolvedReferences
-    runfile("mp_streams/mp_utils.py")
+    runfile("micropred/mp_utils.py")
     # %%
 
 
