@@ -46,7 +46,7 @@ class FTCrawlerV0(MicroCrawler):
                               + [ i ] ).transpose()
 
         self.lr = LinearRegression()
-        print( self.names1 )
+        # print( self.names )
 
     def include_stream(self, name=None, **ignore):
         """whether to include a stream in predictions"""
@@ -89,10 +89,10 @@ class FTCrawlerV0(MicroCrawler):
 
         N = self.min_lags
         past_truth = lagged_values[:N][-1::-1]
+        self.lr.fit(self.feats[:N, :], past_truth)
+
         past_preds = self.lr.predict(self.feats[:N])
         stdev = _l2_error(past_preds, past_truth)
-
-        self.lr.fit(self.feats[:N, :], past_truth)
 
         if delay == 310:
             pred, stdev = self._predict_310( name, delay, past_truth, past_preds,
