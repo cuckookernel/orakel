@@ -31,7 +31,8 @@ class FTCrawlerV0(MicroCrawler):
     def __init__(self, **kwargs):
         self.names = []
         self.horizon_i = 0
-        self.horizons = ["310", "910", "3555"]
+        # self.horizons = ["310", "910", "3555"]
+        self.horizons = ["310"]
 
         super().__init__(**kwargs)
 
