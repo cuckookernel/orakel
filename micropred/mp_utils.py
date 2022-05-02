@@ -147,5 +147,18 @@ def lagged( stream_name: str, count: int=1000 ) -> List[str]:
     # %%
 
 
+def save_offcast_goose(grped):
+    # %%
+    for stream in grped['Offcast Goose']:
+        df = lagged( stream, count=10000)
+
+        df.to_parquet( os.getenv('HOME') / f'_data/micropred/{stream}_{dt.today()}')
+        break
+
+    # %%
+    df.shape
+    # %%
+
+
 bgets = budgets()
 # %%
