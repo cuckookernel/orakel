@@ -2,13 +2,13 @@
 https://www.buda.com/api/v2/markets/btc-cop/ticker
 """
 
-from typing import Optional
-import os
 import json
 import logging as log
+import os
+from typing import Optional
 
-from microprediction.polling import MicroPoll
 import requests
+from microprediction.polling import MicroPoll
 
 log.basicConfig(filename='publish_btc_cop.log', level=log.INFO)
 # log.basicConfig(stream=sys.stderr, level=log.INFO)
@@ -46,8 +46,7 @@ class MicroPollV2( MicroPoll ):
 
 
 def main():
-    """get key, instantiate feed, run it"""
-
+    """Get key, instantiate feed, run it"""
     write_key = _get_write_key( CFG.stream_name, CFG.keys_file )
     assert write_key, f"Failed getting key for `{CFG.stream_name}` from file: {CFG.keys_file}"
 
@@ -61,7 +60,7 @@ def main():
     feed.run()
 
 
-class PriceGetter():
+class PriceGetter:
     def __init__(self):
         self.prev_price = None
 

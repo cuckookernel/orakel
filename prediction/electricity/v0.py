@@ -1,15 +1,14 @@
 
-import sys
-from sklearn.linear_model import LinearRegression
 import logging as log
 import os
+import sys
 
-from statsmodels.tsa.arima.model import ARIMA
-import numpy as np
-from numpy import random
 import dotenv
-
+import numpy as np
 from microprediction import MicroCrawler
+from numpy import random
+from sklearn.linear_model import LinearRegression
+from statsmodels.tsa.arima.model import ARIMA
 
 dotenv.load(os.getenv('HOME') + '/micropred.env')
 # %%
@@ -40,7 +39,7 @@ class FTCrawlerV0(MicroCrawler):
         N = self.min_lags
 
         i = np.linspace(0, N - 1, N + 12)
-        self.feats = np.array(  [ np.cos( 2 * np.pi * k * i / N ) for k in range(0, self.nf+1) ]
+        self.feats = np.array(  [ np.cos( 2 * np.pi * k * i / N ) for k in range(self.nf+1) ]
                               + [ np.sin( 2 * np.pi * k * i / N )
                                   for k in range(-self.nf, self.nf + 1) if k != 0 ]
                               + [ i ] ).transpose()
@@ -49,7 +48,7 @@ class FTCrawlerV0(MicroCrawler):
         # print( self.names )
 
     def include_stream(self, name=None, **ignore):
-        """whether to include a stream in predictions"""
+        """Whether to include a stream in predictions"""
         include = name.startswith('electricity-load-')
         if include:
             # print(f"INCLUDED: {name}")
@@ -63,7 +62,7 @@ class FTCrawlerV0(MicroCrawler):
         return include
 
     def next_horizon(self, exclude=None):
-        """produce a next horizon by cycling jointly through self.horizons self.names """
+        """Produce a next horizon by cycling jointly through self.horizons self.names"""
         self.horizon_i += 1
         name_i = self.horizon_i // 3
         next_name = self.names[name_i % len(self.names)]
@@ -74,9 +73,9 @@ class FTCrawlerV0(MicroCrawler):
     #     return delay > 50000  # Lower this to have any effect
 
     def sample(self, lagged_values, lagged_times=None, name=None, delay=None, **ignored):
-        """ Must return a list of 225 numbers
-            In this example we use the empirical distribution of changes
-            We add in some singletons to capture (to some extent) the under-sampled possibilities
+        """Must return a list of 225 numbers
+        In this example we use the empirical distribution of changes
+        We add in some singletons to capture (to some extent) the under-sampled possibilities
         """
         lagged_values, lagged_times = self.get_lagged_values_and_times( name )
 

@@ -1,18 +1,17 @@
 """A simple muid key server supports registering a key and fetching key
-that hasn't been used by anybody before"""
-
-import os
-import sys
-import logging as log
-
-import muid
-import databases
-import sqlalchemy
+that hasn't been used by anybody before
+"""
 
 import http
+import logging as log
+import os
+import sys
+
+import databases
+import muid
+import sqlalchemy
 from fastapi import FastAPI, HTTPException, Response
 from pydantic import BaseModel
-
 
 MIN_DIFFICULTY = 9
 DEFAULT_FORMAT = '%(asctime)s.%(msecs)03d %(levelname)s %(name)s::%(funcName)s: %(message)s'
@@ -39,7 +38,7 @@ keys_tbl = sqlalchemy.Table(
 
 
 engine = sqlalchemy.create_engine(
-    DATABASE_URL, connect_args={"check_same_thread": False}
+    DATABASE_URL, connect_args={"check_same_thread": False},
 )
 
 metadata.create_all(engine)
@@ -48,6 +47,7 @@ metadata.create_all(engine)
 
 class Key(BaseModel):
     """a key as provided to /keys/save endpoint"""
+
     key: str
 
 
@@ -95,8 +95,8 @@ async def _all_keys(difficulty: int = None):
 @app.get("/keys_tbl_def")
 async def _keys_tbl_def():
     return await database.fetch_all("""
-        SELECT sql 
-        FROM sqlite_master 
+        SELECT sql
+        FROM sqlite_master
         WHERE name = 'keys'
     """)
 
@@ -123,9 +123,9 @@ async def _save_key0(key: str):
 
 @app.get("/keys/unused_report")
 async def _unused_report():
-    query = """select 
-                    difficulty, 
-                    count(*) as cnt  
+    query = """select
+                    difficulty,
+                    count(*) as cnt
                from keys group by difficulty"""
 
     recs = await database.fetch_all(query)
@@ -169,7 +169,7 @@ def _save_query(key: str) -> str:
     bhash = muid.bhash( key_bytes ).decode('ascii')
     animal = muid.animal(key_bytes )
 
-    log.info(f"bhash={repr(bhash)}, difficulty={repr(difficulty)}, animal={repr(animal)}")
+    log.info(f"bhash={bhash!r}, difficulty={difficulty!r}, animal={animal!r}")
 
     query = keys_tbl.insert().values(key=key, difficulty=difficulty, hash=bhash,
                                      animal=animal, used_by=None)
@@ -178,7 +178,7 @@ def _save_query(key: str) -> str:
 
 @app.get("/key")
 async def _get_key(client_name: str, difficulty: int):
-    query = f"select * from keys where used_by is null and difficulty=:diff"
+    query = "select * from keys where used_by is null and difficulty=:diff"
     record = await database.fetch_one(query, values={'diff': difficulty})
     key_found = record['key']
     log.info(f"{record}")
@@ -188,7 +188,7 @@ async def _get_key(client_name: str, difficulty: int):
 
     await database.execute( update, values=dict(client_name=client_name, key=key_found))
 
-    final_query = f"select * from keys where key=:key"
+    final_query = "select * from keys where key=:key"
     record2 = await database.fetch_one(final_query, values={'key': key_found})
 
     return record2

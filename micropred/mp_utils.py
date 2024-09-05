@@ -1,12 +1,12 @@
 
 # %%
-from typing import List
-import os
 import json
+import os
+from typing import List
 
-import requests
 import pandas as pd
-from pandas import Series, DataFrame
+import requests
+from pandas import DataFrame, Series
 
 # %%
 
@@ -133,7 +133,7 @@ def active_submissions( write_key: str ) -> List[str]:
 
 
 def lagged( stream_name: str, count: int=1000 ) -> List[str]:
-    """Return lagged values """
+    """Return lagged values"""
     # %%
     url = ROOT + f"/lagged/{stream_name}?count={count}"
     resp = requests.get( url )
@@ -144,6 +144,19 @@ def lagged( stream_name: str, count: int=1000 ) -> List[str]:
     result['tstamp_utc'] = pd.to_datetime( result['epoch_time'], unit='s' )
     # %%
     return result
+    # %%
+
+
+def save_offcast_goose(grped):
+    # %%
+    for stream in grped['Offcast Goose']:
+        df = lagged( stream, count=10000)
+
+        df.to_parquet( os.getenv('HOME') / f'_data/micropred/{stream}_{dt.today()}')
+        break
+
+    # %%
+    df.shape
     # %%
 
 
